@@ -1,0 +1,19 @@
+<p>app-login works!create a reactive login form here</p>
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <label class="label">Name</label>
+  <div class="control">
+    <input class="input" type="text" formControlName="username">
+  </div>
+  <label class="label">Password</label>
+  <div class="control">
+    <input class="input" type="text" formControlName="password">
+  </div>
+  <div>
+    <button class="primary" type="button" (click)="onLogForm()">log the form</button>
+  </div>
+  <div>
+    <button type="submit" class="primary">submit</button>
+  </div>
+</form>
+  <p>password error: {{loginForm.errors | json}}</p>
+  <p>form value: {{loginForm.value | json}}</p>

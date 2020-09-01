@@ -1,0 +1,25 @@
+<p>search-list works!</p>
+<div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">ID</th>
+          <th scope="col">Tag</th>
+          <th scope="col">Title</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let l of logs; let i of index">
+          <th scope="row">nada</th>
+          <td>{{l.id}}</td>
+          <td>{{l.tag}}</td>
+          <td>{{l.title}}</td>
+          <td>
+            <button class="primary" (click)="onGetLogById(l.id)"> get log</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

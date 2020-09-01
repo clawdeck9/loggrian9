@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <form [formGroup]="creationForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <div class="form-control">
+            <input class="input" type="text" formControlName="id">
+          </div>
+          <div class="form-control">
+            <input class="input" type="text" formControlName="title">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="exampleFormControlTextarea1">Log text</label>
+          <textarea class="form-control" formControlName="lines" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <input type="text" formControlName="tag">
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- form.value {{creationForm.value | json}} -->

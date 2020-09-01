@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <form [formGroup]="tagSelectForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <input type="text" formControlName="tag">
+        </div>
+        <div class="form-group">
+          <select class="form-control mdb-select md-form" multiple formControlName="tagList">
+            <option *ngFor="let tagItem of filteredTags; let i = index" [value]="filteredTags[i]"
+              (click)="onTagSelected(tagItem)">{{filteredTags[i]}}
+            </option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+form.value {{tagSelectForm.value | json}}
