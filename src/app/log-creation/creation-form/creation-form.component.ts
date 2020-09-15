@@ -4,7 +4,6 @@ import { FormControl } from '@angular/forms';
 import { LogsService } from '../../logs.service';
 import { ActivatedRoute } from '@angular/router';
 import { LogInterface } from '../../interfaces/log-interface';
-import { Plugins } from 'protractor/built/plugins';
 
 @Component({
   selector: 'app-creation-form',
@@ -13,10 +12,10 @@ import { Plugins } from 'protractor/built/plugins';
 })
 export class CreationFormComponent implements OnInit {
   
-  createMode: boolean = true;
+  createMode: boolean = false;
   creationForm: FormGroup;
   logId = null;
-  log: LogInterface =  { id: "1", title: "Testing the first creation form", lines: "that the main part of the log: the text", tag: "music" };
+  log: LogInterface =  { id: "1", title: "the dofault log in the creation form", lines: "that the main part of the log: the text", tag: "music" };
   logs: LogInterface[] = [];
 
   constructor(private logsService: LogsService, private route: ActivatedRoute) {
@@ -24,20 +23,32 @@ export class CreationFormComponent implements OnInit {
 
   ngOnInit() {
     this.creationForm = new FormGroup({
-      'title': new FormControl('nothing here'),
-      'tag': new FormControl('nada'),
+      'title': new FormControl('empty'),
+      'tag': new FormControl('empty'),
       'id': new FormControl(),
-      'lines': new FormControl('vide sidéral')
+      'lines': new FormControl('empty')
     });
     // get the id param from the route:
-    this.logId = this.route.snapshot.params['id'];
-    console.log('the logId.value when there is not param sent to the creation form: ', this.logId);
-    this.initForm(this.logId);
-  }
+    // this.logId = this.route.snapshot.params['id'];
+    // this.route.params.subscribe( ({id}) => this.logId = id);
+    // // this.route.data.subscribe(li => this.logId = li);
+    this.route.data.subscribe(data => {
+      console.log('the log:', data);
+      this.log = data.log;
+    });
 
-  // the formControl do not exist, not created onInit(), but created here with or without a Log
-  private initForm(id: string) {
-    if (id != null) {
+    
+    // TODO: change to a obs<id>; update mode creation: createMode; 
+    // console.log('the logId.value when there is not param sent to the creation form: ', this.logId);
+    this.initForm(this.log);
+  }
+// this inits the form in the 'id as a param' case
+// note: in that case we must manage the 'new' log case
+  private initFormWithId(id: string) {
+    if(id == 'new'){
+      this.createMode = true;
+    }
+    if (id != null && this.createMode != true) {
       this.logsService.getLogById(id)
           .subscribe( l => {
             console.log('creation-form::log : ', l.lines);
@@ -45,8 +56,20 @@ export class CreationFormComponent implements OnInit {
             this.creationForm.get('id').patchValue(l.id);
             this.creationForm.get('tag').patchValue(l.tag);
             this.creationForm.get('lines').patchValue(l.lines);
+            this.logId = l.id;
           });
     }
+  }
+  
+// this inits the form in the 'log as a param' case, when a resolver waits for the log so...
+// note: in that case the resolver manages the 'new log' case
+  private initForm(l: LogInterface) {
+    console.log('creation-form::log : ', l.lines);
+    this.creationForm.get('title').patchValue(l.title);
+    this.creationForm.get('id').patchValue(l.id);
+    this.creationForm.get('tag').patchValue(l.tag);
+    this.creationForm.get('lines').patchValue(l.lines);
+    this.logId = l.id;
   }
 
   onTagSelected(tag: string) {
@@ -56,6 +79,18 @@ export class CreationFormComponent implements OnInit {
 
   onSubmit() {
     // console.log('form:', this.creationForm);
-    this.logsService.createLog(this.creationForm);
+    if(this.createMode == true){
+      this.logsService.createLog(this.creationForm);
+    } else {
+      this.logsService.modifyLog(this.creationForm)
+      .subscribe( l => {
+        console.log('creation-form::log : ', l.lines);
+        this.creationForm.get('title').patchValue(l.title);
+        this.creationForm.get('id').patchValue(l.id);
+        this.creationForm.get('tag').patchValue(l.tag);
+        this.creationForm.get('lines').patchValue(l.lines);
+        this.logId = l.id;
+      });
+    }
   }
 }

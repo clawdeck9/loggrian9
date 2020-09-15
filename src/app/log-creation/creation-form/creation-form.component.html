@@ -3,9 +3,9 @@
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <form [formGroup]="creationForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <div class="form-control">
-            <input class="input" type="text" formControlName="id">
-          </div>
+          <!-- <div class="form-control">
+            <input class="label" type="text" formControlName="id">
+          </div> -->
           <div class="form-control">
             <input class="input" type="text" formControlName="title">
           </div>
@@ -17,8 +17,9 @@
         <div class="form-group">
           <input type="text" formControlName="tag">
         </div>
+        <p>{{logId}}</p>
         <div>
-          <button type="submit" class="btn btn-primary">submit</button>
+          <button type="submit" class="btn btn-primary">Modify</button>
         </div>
       </form>
     </div>

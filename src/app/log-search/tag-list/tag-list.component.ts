@@ -20,13 +20,16 @@ export class TagListComponent implements OnInit {
 
   constructor(private router: Router, private logsService: LogsService) { }
 
+  // TODO: validation: can't get logs if tag is null or not equal to an existing tag
   ngOnInit() {
     this.tagSelectForm.get('tag').valueChanges.subscribe(tagValue => {
-      if (tagValue.length > 0) {
-        this.filteredTags = [];
-        this.filteredTags = this.logsService.getTags(tagValue);
+      if (tagValue != null) {
+        if (tagValue.length >= 0) {
+          this.filteredTags = [];
+          this.filteredTags = this.logsService.getTags(tagValue);// ????
+        }
       }
-      console.log('tag-list::filtTags:', this.filteredTags);
+      // console.log('tag-list::filtTags:', this.filteredTags);
     });
   }
 
@@ -34,6 +37,7 @@ export class TagListComponent implements OnInit {
     console.log('tagSelectForm:  ', this.tagSelectForm);
     // this.router.navigateByUrl('search/bytag/maison');
     this.router.navigate(['search/bytag', this.tagSelectForm.get('tag').value]);
+    this.tagSelectForm.reset();
   }
 
   onTagSelected(tagItem: string){

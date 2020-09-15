@@ -18,26 +18,9 @@ export class LogSearchHomeComponent implements OnInit {
 
   ngOnInit() {
   }
-  
-  onGetLogsByTag(tag: string){
-    // no need to get logs by tag here
-    // this.logsService.getLogsByTag(tag).subscribe(logs => this.logs = logs);
 
-    // this.router.navigate(['../reader', {relativeTo: this.route}]);
-    // add this to the button in template: [routerLink]="['/search/form', log.id]"
-    // this.router.navigateByUrl('/search/bytag/music');// TODO: send the logs to the list
+  onNewLog(){
+    // this.router.navigateByUrl('/search/creation/new');
+    this.router.navigate(['/search/tags/form', "new"]);
   }
-
-  // onGetLogById(id: string){
-  //   this.logsService.getLogById(id).subscribe(log => this.log = log);
-  //   this.router.navigate(['creation']); 
-  //   START: One way of using routerLink
-  //    this.router.navigateByUrl(`${'app-customer-details'}/${rowVal.id}`); 
-  //   and this: an obs from an ang lib sends the customer data 
-  // ngOnInit() {
-  //   this.route.data.subscribe((res) => {
-  //       this.customerData = res;
-  //   },
-  // }
-
 }

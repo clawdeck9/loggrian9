@@ -55,7 +55,7 @@ export class LogsService  {
 
   // receives a form submission with a log to be posted
   createLog(form: AbstractControl) {
-    console.log('form: ', form.value);
+    console.log('form: creation mode!!!', form.value);
     const { tag, title, lines } = form.value;
     const fileName = "filename.txt"
     this.http.post<LogInterface>("http://localhost:8080/logs", { tag, title, lines, fileName }, {
@@ -67,6 +67,18 @@ export class LogsService  {
         resp => { console.log('resp : ', resp) },
         error => { console.log('error: ', error) }
       );
+  }
+
+  // uses a PUT request to modify an existing log
+  modifyLog(form: AbstractControl){
+    console.log('form: modification mode!!!', form.value);
+    const { tag, title, lines, id } = form.value;
+    const fileName = "filename.txt"
+    return this.http.post<LogInterface>("http://localhost:8080/logmod", { tag, title, lines, fileName }, {
+      headers: new HttpHeaders().set('authorization', this.loggedUser.token),
+      params: new HttpParams().set('id', id),
+      observe: 'body'
+    });
   }
 
 // I'd rather have a stream and a transformer function for each log, not a global array of logs I'll have to go through
@@ -94,8 +106,6 @@ export class LogsService  {
     // );
   }
 
-
-
   // TODO: use the logs_by_tag list to find a log by id, thus it'll be unique
   getLogById(id: string) {
     return this.http.get<LogInterface>("http://localhost:8080/log", {
@@ -106,31 +116,15 @@ export class LogsService  {
 
   // update the local tag list
   getTags(beg: string) {
-    // console.log('logs.service::non-filtered tags: ', this.tags)
+    console.log('logs.service::non-filtered tags: ', this.tags)
     let temp: string[] = [];
     for (let i in this.tags) {
       if (this.tags[i].startsWith(beg)) {
         temp.push(this.tags[i]);
       }
     }
+
+    console.log('logs.service::filtered tags: ', temp)
     return temp;
   }
-
-// =====================================================================================================================
-  // {"-M5uk3BRfxVKukZVqhJB":{"tag":"music","text":"this is not a cool lesson for a beginner","title":"dorian mode"},
-  //  "-M5vW6ZS9pTwrqrLYI0I":{"tag":"music","text":"this is not a cool lesson for a beginner","title":"dorian mode"}}
-
-  // https://console.firebase.google.com/project/log-dispatcher/database/log-dispatcher/data
-  _getLogById(num: number) {
-    this.http.get<LogInterface>("https://log-dispatcher.firebaseio.com/logs.json").
-      subscribe(resp => (console.log('resp received in log service ')));
-  }
-
-  // https://console.firebase.google.com/project/log-dispatcher/database/log-dispatcher/data
-  postASampleLog() {
-    this.http.post("https://log-dispatcher.firebaseio.com/logs.json",
-      { tag: 'music', title: 'mixolydian mode', text: 'this is not a cool lesson for a beginner' }).
-      subscribe(resp => console.log('resp : ', resp));
-  }
-
 }

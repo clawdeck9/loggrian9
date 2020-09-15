@@ -33,7 +33,7 @@ export class SearchListComponent implements OnInit {
 
   onGetLogById(id: string){
     // this.router.navigate(['../creation/1', { relativeTo: this.route}]);
-    this.router.navigate(['/search/creation', id]);
+    this.router.navigate(['/search/tags/form', id]);
   }
 
 }
