@@ -3,9 +3,9 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { TagInterface } from './interfaces/tag-interface';
 import { LogInterface } from './interfaces/log-interface';
 import { AbstractControl } from '@angular/forms';
-import { mergeMap, switchMap, retry, map, catchError, filter, scan, tap, take, exhaustMap  } from 'rxjs/operators';
+import { switchMap, retry, map, catchError, filter, scan, tap, take  } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Subscription } from 'rxjs';
+import { EMPTY, Subscription } from 'rxjs';
 import { User } from './app-login/user.model';
 
 
@@ -90,20 +90,11 @@ export class LogsService  {
       withCredentials: true,
       observe: 'body'
     }) 
-    // TODO: create a new array with a simple log (nolines) and return it in the observable to be listed for selection
-    // .pipe(
-    //   map(
-    //     logs => {
-    //       const slogs:any[]= [];
-    //       console.log('getLogsbytag.log.title: ');
-    //       for(let i = 0; i<logs.length; i++){
-    //         // console.log('title: ', logs[i].title);
-    //         slogs.push({'id': logs[i].id, 'tag': logs[i].tag, 'title': logs[i].title})
+  }
 
-    //       }
-    //     }
-    //   )
-    // );
+  getEmptyLog(i:string, t: string){
+    let log: LogInterface =  { id: i, title: "", lines: "", tag: t };
+    return log;
   }
 
   // TODO: use the logs_by_tag list to find a log by id, thus it'll be unique
@@ -111,7 +102,11 @@ export class LogsService  {
     return this.http.get<LogInterface>("http://localhost:8080/log", {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
       params: new HttpParams().set('id', id)
-    });
+    }).pipe(
+      catchError(error => {console.log('the error', error);
+          return EMPTY;
+    })
+    );
   }
 
   // update the local tag list

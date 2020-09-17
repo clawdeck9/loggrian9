@@ -33,6 +33,16 @@ export class TagListComponent implements OnInit {
     });
   }
 
+  onNewLog(){
+    let tag = this.tagSelectForm.get('tag').value;
+    if (tag == "" || tag == null){
+      tag = "noTag";
+    }
+    this.router.navigate(['/search/tags/form', 'new', tag]);
+    this.tagSelectForm.reset();
+
+  }
+
   onSubmit() {
     console.log('tagSelectForm:  ', this.tagSelectForm);
     // this.router.navigateByUrl('search/bytag/maison');
