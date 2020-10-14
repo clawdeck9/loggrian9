@@ -10,7 +10,7 @@ import { LogsService } from '../logs.service';
 })
 export class LogResolverService implements Resolve<LogInterface>{
 
-  constructor(private route: ActivatedRoute, private logsService: LogsService) { }
+  constructor(private logsService: LogsService) { }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
 

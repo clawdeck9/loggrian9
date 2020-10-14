@@ -15,7 +15,7 @@ import { User } from './app-login/user.model';
 })
 export class LogsService  {
   // contains the whole tag vector
-  tags: string[] = ['nada'];
+  tags: string[] = [''];
   loggedUser: User = null;
 
   constructor(private auth: AuthService, private http: HttpClient) {
@@ -52,6 +52,8 @@ export class LogsService  {
     )// subject's pipe
     .subscribe();
   }
+
+
 
   // receives a form submission with a log to be posted
   createLog(form: AbstractControl) {
@@ -92,6 +94,16 @@ export class LogsService  {
     }) 
   }
 
+  findLogsByTitle(title: string){
+    console.log('title (in logsService): ', title);
+    return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
+      headers: new HttpHeaders().set('authorization', this.loggedUser.token),
+      params: new HttpParams().set('title', title),
+      withCredentials: true,
+      observe: 'body'
+    }) 
+  }
+  
   getEmptyLog(i:string, t: string){
     let log: LogInterface =  { id: i, title: "", lines: "", tag: t };
     return log;

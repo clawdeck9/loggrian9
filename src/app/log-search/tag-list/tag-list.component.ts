@@ -43,9 +43,17 @@ export class TagListComponent implements OnInit {
 
   }
 
-  onSubmit() {
-    console.log('tagSelectForm:  ', this.tagSelectForm);
-    // this.router.navigateByUrl('search/bytag/maison');
+  onLogsByTitle() {
+    // console.log('tagSelectForm:  ', this.tagSelectForm);
+    this.router.navigateByUrl('search/bytitle/noTitle');
+    console.log('title: ',this.tagSelectForm.get('tag').value);
+    this.router.navigate(['search/bytitle', this.tagSelectForm.get('tag').value]);
+    this.tagSelectForm.reset();
+  }
+
+  onLogsByTag() {
+    // console.log('tagSelectForm:  ', this.tagSelectForm);
+    this.router.navigateByUrl('search/bytag/maison');
     this.router.navigate(['search/bytag', this.tagSelectForm.get('tag').value]);
     this.tagSelectForm.reset();
   }
@@ -53,5 +61,9 @@ export class TagListComponent implements OnInit {
   onTagSelected(tagItem: string){
     // console.log('tag-list::onTagselected() called, tagItem: ', tagItem);
     this.tagSelectForm.get('tag').patchValue(tagItem);
+  }
+
+  onSubmit(){
+
   }
 }
