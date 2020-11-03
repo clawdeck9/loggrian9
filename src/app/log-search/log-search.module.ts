@@ -7,10 +7,11 @@ import { LogSearchHomeComponent } from './log-search-home/log-search-home.compon
 import { SearchListComponent } from './search-list/search-list.component';
 import { ReaderComponent } from './reader/reader.component';
 import { TagListComponent } from './tag-list/tag-list.component';
-import { LogCreationModule } from '../log-creation/log-creation.module'
+import { LogCreationModule } from '../log-creation/log-creation.module';
+import { ListItemComponent } from './search-list/list-item/list-item.component'
 
 @NgModule({
-  declarations: [LogSearchHomeComponent, SearchListComponent, ReaderComponent, TagListComponent],
+  declarations: [LogSearchHomeComponent, SearchListComponent, ReaderComponent, TagListComponent, ListItemComponent],
   imports: [
     CommonModule,
     FormsModule,
