@@ -5,7 +5,7 @@ import { LogInterface } from './interfaces/log-interface';
 import { AbstractControl } from '@angular/forms';
 import { switchMap, retry, map, catchError, filter, scan, tap, take  } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { EMPTY, Subscription } from 'rxjs';
+import { EMPTY, Subject, Subscription } from 'rxjs';
 import { User } from './app-login/user.model';
 
 
@@ -16,12 +16,15 @@ import { User } from './app-login/user.model';
 export class LogsService  {
   // contains the whole tag vector
   tags: string[] = [''];
+  logs: LogInterface[] = null;
   loggedUser: User = null;
+  changedLogs = new Subject<LogInterface[]>();
 
   constructor(private auth: AuthService, private http: HttpClient) {
     if (http === undefined) {
       console.log('HttpClient was not injected ');
     }
+    this.logs = [];
     this.auth.userLoggedIn.subscribe(u => {
       this.loggedUser = u;
       if(this.loggedUser!== null){
@@ -30,6 +33,15 @@ export class LogsService  {
     });
   }
 
+  setLogs(logs: LogInterface[]){
+    this.logs = logs;
+    // send data to subscribers
+    this.changedLogs.next(logs);
+  }
+
+  getLogs(){
+    return this.logs;
+  }
   // getTagList(): the user must be logged in, thus this function must be called each time a user logs in
   // 
   initTagList() {
@@ -52,7 +64,6 @@ export class LogsService  {
     )// subject's pipe
     .subscribe();
   }
-
 
 
   // receives a form submission with a log to be posted
@@ -85,14 +96,29 @@ export class LogsService  {
 
 // I'd rather have a stream and a transformer function for each log, not a global array of logs I'll have to go through
 // TODO: add the logs by tag list in the search form
-  getLogsByTag(tag: string) {
+  getLocalLogsByTag(tag: string) {
+    if ((this.logs != null) && (this.logs.length > 0)){
+      if (this.logs[0].tag == tag){
+        return this.logs;
+      }
+    }
+    return []; 
+  }
+
+
+  fetchLogsByTag(tag: string){
     return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
       params: new HttpParams().set('tag', tag),
       withCredentials: true,
       observe: 'body'
-    }) 
+    }).pipe(
+      tap(
+        data => this.setLogs(data)
+      )
+    ); 
   }
+
 
   findLogsByTitle(title: string){
     console.log('title (in logsService): ', title);
@@ -130,7 +156,6 @@ export class LogsService  {
         temp.push(this.tags[i]);
       }
     }
-
     console.log('logs.service::filtered tags: ', temp)
     return temp;
   }

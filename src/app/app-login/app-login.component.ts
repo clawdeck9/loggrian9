@@ -51,7 +51,7 @@ export class AppLoginComponent implements OnInit {
 
   onSubmit() {
     console.log('onSubmit(): ',this.loginForm);
-    // TEMP!
+    // TODO: TEMP!
     this.auth.login('user', 'user');
     // this.loginForm.reset();
   }
