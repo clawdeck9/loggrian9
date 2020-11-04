@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms'
 import { FormControl } from '@angular/forms';
 import { LogsService } from '../../logs.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LogInterface } from '../../interfaces/log-interface';
 
 @Component({
@@ -16,7 +16,7 @@ export class CreationFormComponent implements OnInit {
   log: LogInterface =  null;
   logs: LogInterface[] = [];
 
-  constructor(private logsService: LogsService, private route: ActivatedRoute) {
+  constructor(private logsService: LogsService, private route: ActivatedRoute, private router: Router) {
   }
 
   ngOnInit() {
@@ -65,6 +65,7 @@ export class CreationFormComponent implements OnInit {
 
 
   onSubmit() {
+    let newId: string = null;
     if(this.log.id == 'new'){
     console.log('form: createLog() call:', this.creationForm);
       this.logsService.createLog(this.creationForm);
@@ -76,8 +77,8 @@ export class CreationFormComponent implements OnInit {
         // this.initForm(l);
       });
     }
-    // RESET the log!!!
-    this.resetLog();
-    this.creationForm.reset();
+    // TODO: reset the logsByTag list before this, the comp is not updated because the route has not changed
+    this.logsService.getLogsByTag( this.creationForm.get('tag').value).subscribe();
+    this.router.navigate(['search/bytag', this.creationForm.get('tag').value]);
   }
 }

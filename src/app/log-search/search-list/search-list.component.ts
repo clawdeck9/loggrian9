@@ -24,11 +24,8 @@ export class SearchListComponent implements OnInit {
 
   ngOnInit() {
     this.tag = this.route.snapshot.params['tag'];
-    this.onGetLogsByTag();
-  }
-
-  onGetLogsByTag(){
     console.log('logs:@init:start = ', this.logs);
+    
     this.route.data.subscribe( (i: Data) => {
       console.log('item: ', i); 
       this.logs = i['logsByTag']; 
