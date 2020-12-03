@@ -5,7 +5,7 @@ import { LogInterface } from './interfaces/log-interface';
 import { AbstractControl } from '@angular/forms';
 import { switchMap, retry, map, catchError, filter, scan, tap, take  } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { EMPTY, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { User } from './app-login/user.model';
 
 
@@ -18,7 +18,7 @@ export class LogsService  {
   tags: string[] = [''];
   logs: LogInterface[] = null;
   loggedUser: User = null;
-  changedLogs = new Subject<LogInterface[]>();
+  changedLogs = new BehaviorSubject<LogInterface[]>(this.logs);
 
   constructor(private auth: AuthService, private http: HttpClient) {
     if (http === undefined) {
@@ -42,6 +42,32 @@ export class LogsService  {
   getLogs(){
     return this.logs;
   }
+
+  replaceLocalLog(log: LogInterface, newLog: LogInterface) {
+    // console.log('replaceLocalLog::the logs before adding a new mod one:', this.logs.toString(), 'id:', log.id);
+    let id: string = log.id;
+    let index = -1;
+    let l: LogInterface = null;
+    for (l of this.logs) {
+      index++;
+      if (l.id == id) {
+        this.logs.splice(index, 1);
+      }
+    }
+    this.logs.push(newLog);
+    this.changedLogs.next(this.logs);
+  }
+
+  addLocalLog(newLog: LogInterface){
+    this.logs.push(newLog);
+    this.changedLogs.next(this.logs);
+  }
+  // const index = myArray.indexOf(key, 0);
+  // if (index > -1) {
+  //    myArray.splice(index, 1);
+  // }
+  
+  
   // getTagList(): the user must be logged in, thus this function must be called each time a user logs in
   // 
   initTagList() {
@@ -71,15 +97,11 @@ export class LogsService  {
     console.log('form: creation mode!!!', form.value);
     const { tag, title, lines } = form.value;
     const fileName = "filename.txt"
-    this.http.post<LogInterface>("http://localhost:8080/logs", { tag, title, lines, fileName }, {
+    return this.http.post<LogInterface>("http://localhost:8080/logs", { tag, title, lines, fileName }, {
       // headers: new HttpHeaders({ 'withCredentials': 'true'}).set('authorization', temp.token),
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
       observe: 'body'
-    }).
-      subscribe(
-        resp => { console.log('resp : ', resp) },
-        error => { console.log('error: ', error) }
-      );
+    });
   }
 
   // uses a PUT request to modify an existing log

@@ -20,28 +20,39 @@ export class SearchListComponent implements OnInit {
 
   ngOnInit() {
     this.subscription = this.logService.changedLogs.subscribe(logs => {
-      this.logs = logs; 
-      console.log('subscription called: ', logs);
+      this.logs = logs;
+      console.log('subscription called (not the route.data!): ', logs);
     })
     this.tag = this.route.snapshot.params['tag'];
-    // this.logs = this.logService.getLocalLogsByTag('tag');
-    
-    this.route.data.subscribe( (i: Data) => {
-      console.log('item: ', i); 
-      this.logs = i['logsByTag']; 
-      console.log('logs:@cb from resolver = ', this.logs);
+    // this can be overviewed, actually, the log array is sent through a behavSubject directly from the servicenpm
+    this.route.data.subscribe((d: Data) => {
+      console.log('item: ', d);
+      this.logs = d['logsByTag'];
+      console.log('logs:cb from resolver (NOT the subject subscription!)= ', this.logs);
     });
-
   }
 
-  onGetLogById(id: string){
+  onGetLogById(id: string) {
     console.log('search-list::onGetLogById(id)::id: ', id);
-    
+
     // this.router.navigate(['../creation/1', { relativeTo: this.route}]);
     this.router.navigate(['/search/tags/form', id, 'mod']);
   }
+
+  // onNewLog(tag){
+  //   if(tag == null){
+  //     tag = "notag";
+  //   }
+  //   this.router.navigate(['/search/creation'])
+  // }
+  onNewLog() {
+    if (this.tag == "" || this.tag == null) {
+      this.tag = "noTag";
+    }
+    this.router.navigate(['/search/bytag', this.tag, 'creation', 'form', 'new', this.tag]);
+  }
+  // http://localhost:4200/search/bytag/programming/creation/form/29/mod
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-
 }
