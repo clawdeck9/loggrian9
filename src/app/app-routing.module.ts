@@ -25,7 +25,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes), FormsModule, ReactiveFormsModule], 
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }), FormsModule, ReactiveFormsModule], 
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
