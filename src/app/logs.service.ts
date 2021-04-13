@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { TagInterface } from './interfaces/tag-interface';
 import { LogInterface } from './interfaces/log-interface';
+import { PageInterface } from './interfaces/page-interface';
 import { AbstractControl } from '@angular/forms';
 import { switchMap, retry, map, catchError, filter, scan, tap, take  } from 'rxjs/operators';
 import { AuthService } from './auth.service';
@@ -66,10 +67,10 @@ export class LogsService  {
   // if (index > -1) {
   //    myArray.splice(index, 1);
   // }
-  
-  
+
+
   // getTagList(): the user must be logged in, thus this function must be called each time a user logs in
-  // 
+  //
   initTagList() {
     this.auth.userLoggedIn.pipe(
       map(
@@ -124,11 +125,11 @@ export class LogsService  {
         return this.logs;
       }
     }
-    return []; 
+    return [];
   }
 
 
-  fetchLogsByTag(tag: string){
+  _fetchLogsByTag(tag: string){
     return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
       params: new HttpParams().set('tag', tag),
@@ -138,9 +139,26 @@ export class LogsService  {
       tap(
         data => this.setLogs(data)
       )
-    ); 
+    );
   }
+// gets some paged responses from the server
+  fetchLogsByTag(tag: string, pageNumber: string='0'){
+    return this.http.get<PageInterface>('http://localhost:8080/logs-paged', {
+      headers: new HttpHeaders().set('authorization', this.loggedUser.token),
+      params: new HttpParams().set('tag', tag).set('page', pageNumber),
+      withCredentials: true,
+      observe: 'body'
+    }).pipe(
 
+      tap(
+        data => {
+          console.log("fetchLogsByTag::data.content= " + data.content.toString());
+          this.setLogs(data.content);
+        }
+      ),
+      map(data => data.content)
+    );
+  }
 
   findLogsByTitle(title: string){
     console.log('title (in logsService): ', title);
@@ -149,9 +167,9 @@ export class LogsService  {
       params: new HttpParams().set('title', title),
       withCredentials: true,
       observe: 'body'
-    }) 
+    })
   }
-  
+
   getEmptyLog(i:string, t: string){
     let log: LogInterface =  { id: i, title: "", lines: "", tag: t };
     return log;

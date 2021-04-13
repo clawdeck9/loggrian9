@@ -44,7 +44,8 @@ export class TagListComponent implements OnInit {
 
   onLogsByTag() {
     // console.log('tagSelectForm:  ', this.tagSelectForm);
-    this.router.navigate(['search/bytag', this.tagSelectForm.get('tag').value]);
+    let pageNumber='0';
+    this.router.navigate(['search/bytag', this.tagSelectForm.get('tag').value, pageNumber]);
     this.tagSelectForm.reset();
   }
 
