@@ -15,6 +15,7 @@ export class SearchListComponent implements OnInit {
   log: LogInterface = null;
   subscription: Subscription;
   logs: LogInterface[] = null;
+  pageNumber: number = 0;
 
   constructor(private route: ActivatedRoute, private router: Router, private logService: LogsService) { }
 
@@ -52,6 +53,18 @@ export class SearchListComponent implements OnInit {
     this.router.navigate(['/search/bytag', this.tag, 'creation', 'form', 'new', this.tag]);
   }
   // http://localhost:4200/search/bytag/programming/creation/form/29/mod
+  onNextPage() {
+    // todo is there a next page?
+    this.logService.nextPage();
+    this.pageNumber++;
+    this.router.navigate(['search/bytag', this.tag, this.pageNumber]);  
+  }
+
+  onPrevPage() {
+    // todo is there a next page?
+    this.pageNumber--;
+    this.router.navigate(['search/bytag', this.tag, this.pageNumber]);  
+  }
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

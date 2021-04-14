@@ -16,7 +16,8 @@ const routes: Routes = [
     component: LogSearchHomeComponent,
     children: [ 
       {
-        path: 'bytag/:tag/:page', 
+        path: 'bytag/:tag',
+        // path: 'bytag/:tag/:page', 
         component: SearchListComponent, 
         resolve: { logsByTag: LogsByTagsResolverService},
         children: [

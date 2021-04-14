@@ -1,6 +1,10 @@
 <div class="row">
   <button class="primary" (click)="onNewLog()">New</button>
 </div>
+<div>
+  <button class="secondary" (click)="onNextPage()">Next page</button>
+  <button class="secondary" (click)="onPrevPage()">Previous page</button>
+</div>
 <div class="row">
   <div class="col-5">
     <app-list-item *ngFor="let log of logs; let i=index" [log]='log'></app-list-item>

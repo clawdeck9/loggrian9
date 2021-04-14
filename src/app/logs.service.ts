@@ -17,6 +17,7 @@ import { User } from './app-login/user.model';
 export class LogsService  {
   // contains the whole tag vector
   tags: string[] = [''];
+  // todo: change the Array to a Array of pages?
   logs: LogInterface[] = null;
   loggedUser: User = null;
   changedLogs = new BehaviorSubject<LogInterface[]>(this.logs);
@@ -92,6 +93,15 @@ export class LogsService  {
     .subscribe();
   }
 
+  // todo
+  fetchLogsByTagNextPage(tag: string){
+    this.fetchLogsByTag(tag, 'o');
+  }
+
+  // todo
+  fetchLogsByTagPrevPage(tag: string){
+    this.fetchLogsByTag(tag, 'o');
+  }
 
   // receives a form submission with a log to be posted
   createLog(form: AbstractControl) {
@@ -145,7 +155,7 @@ export class LogsService  {
   fetchLogsByTag(tag: string, pageNumber: string='0'){
     return this.http.get<PageInterface>('http://localhost:8080/logs-paged', {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
-      params: new HttpParams().set('tag', tag).set('page', pageNumber),
+      params: new HttpParams().set('tag', tag).set('page', pageNumber).set('size', '10'),
       withCredentials: true,
       observe: 'body'
     }).pipe(
