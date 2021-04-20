@@ -19,7 +19,7 @@ const routes: Routes = [
         path: 'bytag/:tag',
         // path: 'bytag/:tag/:page', 
         component: SearchListComponent, 
-        resolve: { logsByTag: LogsByTagsResolverService},
+        resolve: { logsByTagPage: LogsByTagsResolverService},
         children: [
           {
             path: '',

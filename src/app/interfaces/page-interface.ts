@@ -5,4 +5,6 @@ export interface PageInterface {
     empty: boolean;
     first: boolean;
     last: boolean;
+    number: string;
+    totalPages: string;
 }

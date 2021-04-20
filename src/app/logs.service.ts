@@ -19,7 +19,13 @@ export class LogsService  {
   tags: string[] = [''];
   // todo: change the Array to a Array of pages?
   logs: LogInterface[] = null;
+  // todo: store locally to avoid multiple calls
+  // localPages: PageInterface[] = null;
+  // the current page
+  localPage: PageInterface = null;
   loggedUser: User = null;
+
+  changedPage = new BehaviorSubject<PageInterface>(this.localPage);
   changedLogs = new BehaviorSubject<LogInterface[]>(this.logs);
 
   constructor(private auth: AuthService, private http: HttpClient) {
@@ -45,6 +51,7 @@ export class LogsService  {
     return this.logs;
   }
 
+  // todo: adapt to page storing
   replaceLocalLog(log: LogInterface, newLog: LogInterface) {
     // console.log('replaceLocalLog::the logs before adding a new mod one:', this.logs.toString(), 'id:', log.id);
     let id: string = log.id;
@@ -60,7 +67,18 @@ export class LogsService  {
     this.changedLogs.next(this.logs);
   }
 
+  setPage(data: PageInterface){
+    this.localPage = data;
+    this.changedPage.next(data);
+  }
+
+  resetLocalPages(){
+    //this.localPages.length = 0;
+  }
+
+  // todo: adapt to page storing
   addLocalLog(newLog: LogInterface){
+    console.log("todo: adapt to page storing");
     this.logs.push(newLog);
     this.changedLogs.next(this.logs);
   }
@@ -93,14 +111,32 @@ export class LogsService  {
     .subscribe();
   }
 
-  // todo
-  fetchLogsByTagNextPage(tag: string){
-    this.fetchLogsByTag(tag, 'o');
+  // this service is responsible for maintaining the tag app state => store the logs in a page array
+  // todo: replace PageInterface with a class and access members
+  fetchNextLogsByTagPage(tag: string){
+    let nb = 0;
+    let tp = 1;
+    if (this.localPage!=null) {
+      tp = (+(this.localPage.totalPages));
+      nb = +(this.localPage.number);
+      nb++;
+    }
+    if(nb < tp){
+      this.fetchLogsByTagPage(tag, String(nb)).subscribe();
+    }
   }
 
-  // todo
-  fetchLogsByTagPrevPage(tag: string){
-    this.fetchLogsByTag(tag, 'o');
+  fetchPrevLogsByTagPage(tag: string){
+    let nb = 0; 
+    // let tp = 1;
+    if (this.localPage!=null) {
+      // tp = (+(this.localPage.totalPages));
+      nb = +(this.localPage.number);
+      nb--;
+    } // throw exception: too low
+    if(nb >= 0){
+      this.fetchLogsByTagPage(tag, String(nb)).subscribe(page => this.localPage = page);
+    }
   }
 
   // receives a form submission with a log to be posted
@@ -139,34 +175,32 @@ export class LogsService  {
   }
 
 
-  _fetchLogsByTag(tag: string){
-    return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
-      headers: new HttpHeaders().set('authorization', this.loggedUser.token),
-      params: new HttpParams().set('tag', tag),
-      withCredentials: true,
-      observe: 'body'
-    }).pipe(
-      tap(
-        data => this.setLogs(data)
-      )
-    );
-  }
+  // fetchLogsByTag(tag: string){
+  //   return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
+  //     headers: new HttpHeaders().set('authorization', this.loggedUser.token),
+  //     params: new HttpParams().set('tag', tag),
+  //     withCredentials: true,
+  //     observe: 'body'
+  //   }).pipe(
+  //     tap(
+  //       data => this.setLogs(data)
+  //     )
+  //   );
+  // }
 // gets some paged responses from the server
-  fetchLogsByTag(tag: string, pageNumber: string='0'){
+  fetchLogsByTagPage(tag: string, pageNumber: string='0'){
     return this.http.get<PageInterface>('http://localhost:8080/logs-paged', {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
       params: new HttpParams().set('tag', tag).set('page', pageNumber).set('size', '10'),
       withCredentials: true,
       observe: 'body'
     }).pipe(
-
       tap(
         data => {
-          console.log("fetchLogsByTag::data.content= " + data.content.toString());
-          this.setLogs(data.content);
+          console.log("logService.fetchLogsByTag::data.content= " + data.content.toString());
+          this.setPage(data);
         }
-      ),
-      map(data => data.content)
+      )
     );
   }
 

@@ -7,20 +7,14 @@ import { LogsService } from '../logs.service';
 @Injectable({
   providedIn: 'root'
 })
-export class LogsByTagsResolverService implements Resolve<LogInterface[]>{
+export class LogsByTagsResolverService implements Resolve<PageInterface>{
 
   constructor(private logsService: LogsService) { }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
     let tag = route.params['tag'];
-    let page = route.params['page'];
-    let logs: LogInterface[] = null;
-    // there'll be a necessary adaptation to paging functionality here
-    logs = this.logsService.getLocalLogsByTag(tag);
-    if (logs.length == 0){
-      return this.logsService.fetchLogsByTag(tag, page);
-    } else {
-      return logs;
-    }
+    //by definition, we want the first page;
+    //by definition, it's a new tag. the existing page must be forgotten;
+    return this.logsService.fetchLogsByTagPage(tag, '0');
   }
 }
