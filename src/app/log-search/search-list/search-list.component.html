@@ -1,9 +1,14 @@
 <div class="row">
   <button class="primary" (click)="onNewLog()">New</button>
 </div>
+<div>
+  <button class="secondary" (click)="onPrevPage()">Previous page</button>
+  <button class="secondary" (click)="onNextPage()">Next page</button>
+  <p>page {{page.number+1}}</p>
+</div>
 <div class="row">
   <div class="col-5">
-    <app-list-item *ngFor="let log of logs; let i=index" [log]='log'></app-list-item>
+    <app-list-item *ngFor="let log of page.content; let i=index" [log]='log'></app-list-item>
   </div>
   <div class="col-7">
     <router-outlet></router-outlet>

@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { TagInterface } from './interfaces/tag-interface';
 import { LogInterface } from './interfaces/log-interface';
+import { PageInterface } from './interfaces/page-interface';
 import { AbstractControl } from '@angular/forms';
 import { switchMap, retry, map, catchError, filter, scan, tap, take  } from 'rxjs/operators';
 import { AuthService } from './auth.service';
@@ -16,8 +17,15 @@ import { User } from './app-login/user.model';
 export class LogsService  {
   // contains the whole tag vector
   tags: string[] = [''];
+  // todo: change the Array to a Array of pages?
   logs: LogInterface[] = null;
+  // todo: store locally to avoid multiple calls
+  // localPages: PageInterface[] = null;
+  // the current page
+  localPage: PageInterface = null;
   loggedUser: User = null;
+
+  changedPage = new BehaviorSubject<PageInterface>(this.localPage);
   changedLogs = new BehaviorSubject<LogInterface[]>(this.logs);
 
   constructor(private auth: AuthService, private http: HttpClient) {
@@ -43,6 +51,7 @@ export class LogsService  {
     return this.logs;
   }
 
+  // todo: adapt to page storing
   replaceLocalLog(log: LogInterface, newLog: LogInterface) {
     // console.log('replaceLocalLog::the logs before adding a new mod one:', this.logs.toString(), 'id:', log.id);
     let id: string = log.id;
@@ -58,7 +67,18 @@ export class LogsService  {
     this.changedLogs.next(this.logs);
   }
 
+  setPage(data: PageInterface){
+    this.localPage = data;
+    this.changedPage.next(data);
+  }
+
+  resetLocalPages(){
+    //this.localPages.length = 0;
+  }
+
+  // todo: adapt to page storing
   addLocalLog(newLog: LogInterface){
+    console.log("todo: adapt to page storing");
     this.logs.push(newLog);
     this.changedLogs.next(this.logs);
   }
@@ -66,10 +86,10 @@ export class LogsService  {
   // if (index > -1) {
   //    myArray.splice(index, 1);
   // }
-  
-  
+
+
   // getTagList(): the user must be logged in, thus this function must be called each time a user logs in
-  // 
+  //
   initTagList() {
     this.auth.userLoggedIn.pipe(
       map(
@@ -91,6 +111,33 @@ export class LogsService  {
     .subscribe();
   }
 
+  // this service is responsible for maintaining the tag app state => store the logs in a page array
+  // todo: replace PageInterface with a class and access members
+  fetchNextLogsByTagPage(tag: string){
+    let nb = 0;
+    let tp = 1;
+    if (this.localPage!=null) {
+      tp = (+(this.localPage.totalPages));
+      nb = +(this.localPage.number);
+      nb++;
+    }
+    if(nb < tp){
+      this.fetchLogsByTagPage(tag, String(nb)).subscribe();
+    }
+  }
+
+  fetchPrevLogsByTagPage(tag: string){
+    let nb = 0; 
+    // let tp = 1;
+    if (this.localPage!=null) {
+      // tp = (+(this.localPage.totalPages));
+      nb = +(this.localPage.number);
+      nb--;
+    } // throw exception: too low
+    if(nb >= 0){
+      this.fetchLogsByTagPage(tag, String(nb)).subscribe(page => this.localPage = page);
+    }
+  }
 
   // receives a form submission with a log to be posted
   createLog(form: AbstractControl) {
@@ -124,23 +171,38 @@ export class LogsService  {
         return this.logs;
       }
     }
-    return []; 
+    return [];
   }
 
 
-  fetchLogsByTag(tag: string){
-    return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
+  // fetchLogsByTag(tag: string){
+  //   return this.http.get<LogInterface[]>('http://localhost:8080/logs', {
+  //     headers: new HttpHeaders().set('authorization', this.loggedUser.token),
+  //     params: new HttpParams().set('tag', tag),
+  //     withCredentials: true,
+  //     observe: 'body'
+  //   }).pipe(
+  //     tap(
+  //       data => this.setLogs(data)
+  //     )
+  //   );
+  // }
+// gets some paged responses from the server
+  fetchLogsByTagPage(tag: string, pageNumber: string='0'){
+    return this.http.get<PageInterface>('http://localhost:8080/logs-paged', {
       headers: new HttpHeaders().set('authorization', this.loggedUser.token),
-      params: new HttpParams().set('tag', tag),
+      params: new HttpParams().set('tag', tag).set('page', pageNumber).set('size', '10'),
       withCredentials: true,
       observe: 'body'
     }).pipe(
       tap(
-        data => this.setLogs(data)
+        data => {
+          console.log("logService.fetchLogsByTag::data.content= " + data.content.toString());
+          this.setPage(data);
+        }
       )
-    ); 
+    );
   }
-
 
   findLogsByTitle(title: string){
     console.log('title (in logsService): ', title);
@@ -149,9 +211,9 @@ export class LogsService  {
       params: new HttpParams().set('title', title),
       withCredentials: true,
       observe: 'body'
-    }) 
+    })
   }
-  
+
   getEmptyLog(i:string, t: string){
     let log: LogInterface =  { id: i, title: "", lines: "", tag: t };
     return log;
