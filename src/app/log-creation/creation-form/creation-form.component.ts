@@ -68,17 +68,20 @@ export class CreationFormComponent implements OnInit {
     let newId: string = null;
     if(this.log.id == 'new'){
     console.log('form: createLog() call:', this.creationForm);
-      this.logsService.createLog(this.creationForm);
+      this.logsService.createLog(this.creationForm).
+      subscribe( l => {
+        this.logsService.addLocalLog( l ) },
+        error => {console.log('logsService.createLog error :', error)}
+      );
     } else {
       console.log('form: modifyLog() call:', this.creationForm);
       this.logsService.modifyLog(this.creationForm)
       .subscribe( l => {
-        // TODO: manage errors
-        // this.initForm(l);
+        this.logsService.replaceLocalLog( this.log , l ),
+        error => {console.log('logsService.modifyLog() error :', error)}
       });
     }
     // TODO: reset the logsByTag list before this, the comp is not updated because the route has not changed
-    this.logsService.getLogsByTag( this.creationForm.get('tag').value).subscribe();
     this.router.navigate(['search/bytag', this.creationForm.get('tag').value]);
   }
 }

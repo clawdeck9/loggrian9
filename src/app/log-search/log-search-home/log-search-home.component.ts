@@ -19,8 +19,7 @@ export class LogSearchHomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  onNewLog(){
-    // this.router.navigateByUrl('/search/creation/new');
-    this.router.navigate(['/search/tags/form', "new"]);
+  onFindInTags(){
+    this.router.navigateByUrl('/search/taglist');
   }
 }

@@ -12,6 +12,12 @@ export class LogsByTagsResolverService implements Resolve<LogInterface[]>{
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
     let tag = route.params['tag'];
-    return this.logsService.getLogsByTag(tag);
+    let logs: LogInterface[] = null;
+    logs = this.logsService.getLocalLogsByTag(tag);
+    if (logs.length == 0){
+      return this.logsService.fetchLogsByTag(tag);
+    } else {
+      return logs;
+    }
   }
 }
